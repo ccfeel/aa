@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 08:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 13:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -69,7 +69,7 @@
 
 /**
 * 使用说明，
-0️⃣ 在QuantumultX 配置文件中[general] 部分，加入 resource_parser_url=https://github.com/ccfeel/aa/edit/master/resource-parser.js
+0️⃣ 在QuantumultX 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 ⚠️⚠️如提示"没有自定义解析器"，请长按右下角图标后点击左侧刷新按钮，更新资源，后台退出 app，直到出现解析器说明
 1️⃣ 假设原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
 2️⃣ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
@@ -209,9 +209,9 @@ if (type0 == "Subs-B64Encode") {
     flag = -1;
 } else { flag = 0 }
 
-if (Pcnt == 1) {$notify("final content" , "Nodes", total)}
 
 if (flag == 1) { //server 类型统一处理
+    total = total.filter(Boolean)
     if (Pinfo == 1 && ntf_flow == 0) { //假节点类型的流量通知
         flowcheck(total)
     }
@@ -239,8 +239,9 @@ if (flag == 1) { //server 类型统一处理
     if (Psort0) {
         total = QXSort(total, Psort0);
     }
+    if (Pcnt == 1) {$notify("final content" , "Nodes", total)}
     total = TagCheck_QX(total) //节点名检查
-    //if (Pcnt == 1) {$notify("final content" , "Nodes", total)}
+    if (Pcnt == 1) {$notify("final content" , "Nodes", total)}
     if (flag == 1) { total = Base64.encode(total.join("\n")) } //强制节点类型 base64 加密后再导入 Quantumult X
     $done({ content: total });
 } else { $done({ content: total });}
@@ -298,11 +299,11 @@ function Type_Check(subs) {
         type = "Clash";
         //console.log(type)
         content0 = Clash2QX(subs)
-    } else if ( (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subs.indexOf("[URL Rewrite]") != -1 || subs.indexOf("[Map Local]") != -1 || subs.indexOf("[MITM]") != -1 || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) ) { // Surge 类型 module /rule-set(含url-regex) 类型
+    } else if ( (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subs.indexOf("[URL Rewrite]") != -1 || subs.indexOf("[Map Local]") != -1 || subs.indexOf("[MITM]") != -1 || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) { // Surge 类型 module /rule-set(含url-regex) 类型
         type = "sgmodule"
     } else if (subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) {
         type = "rewrite" //Quantumult X 类型 rewrite
-    } else if (RuleK.some(RuleCheck) && subs.indexOf(html) == -1) {
+    } else if (RuleK.some(RuleCheck) && subs.indexOf(html) == -1 && subs.indexOf("[Proxy]") == -1) {
         type = "Rule";
     } else if (DomainK.some(RuleCheck)) {
         type = "Rule";
@@ -976,6 +977,7 @@ function Filter(servers, Pin, Pout) {
     var Nlist = [];
     var Delist = [];
     var Nname = [];
+    servers = servers.filter(Boolean)
     for (var i = 0; i < servers.length; i++) {
         if (Scheck(servers[i], Pin) != 0 && Scheck(servers[i], Pout) != 1) {
             Nlist.push(servers[i])
